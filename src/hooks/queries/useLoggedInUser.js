@@ -9,6 +9,7 @@ import environment from '../../config/environment';
 const useLoggedInUser = () => {
   const navigate = useNavigate();
   const {pathname} = useLocation();
+  const isAuthPage = ['/login', '/signup'].includes(pathname);
 
   const {data: user} = useQuery({
     queryKey: ['loggedInUser'],
@@ -18,11 +19,14 @@ const useLoggedInUser = () => {
         credentials: 'include',
       });
       if (!response.ok) {
-        navigate('/login');
+        // if the user is not logged in, redirect to login page
+        if (!isAuthPage) {
+          navigate('/login');
+        }
         return null;
       } else {
         // redirect to feed if the user is already logged in
-        if (pathname === '/login' || pathname === '/register') {
+        if (isAuthPage) {
           navigate('/');
         }
         return response.json();

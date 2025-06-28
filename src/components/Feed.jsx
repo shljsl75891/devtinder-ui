@@ -51,6 +51,9 @@ const Feed = () => {
             <h2 className="card-title">
               {`${user.firstName} ${user.lastName}  `}
               <Gender gender={user.gender} />
+              {user.age && (
+                <span className="text-sm">{`(${user.age} years old)`}</span>
+              )}
             </h2>
             <p>{user.about}</p>
           </div>
@@ -83,7 +86,7 @@ const Feed = () => {
       ) : (
         <div className="flex justify-center mt-40">
           <span className="mx-auto text-xl font-black">
-            No more recommendations on this page. Try navigating to other pages
+            No more recommendations
           </span>
         </div>
       )}

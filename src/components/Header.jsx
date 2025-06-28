@@ -10,7 +10,10 @@ const Header = () => {
 
   return (
     <div className="navbar bg-base-300 shadow-lg justify-between">
-      <Link to="/" className="flex items-center">
+      <Link
+        to={isNullOrUndefined(user) ? '/login' : '/'}
+        className="flex items-center"
+      >
         <div className="flex-none">
           <img src={appLogo} className="h-8 w-12" />
         </div>

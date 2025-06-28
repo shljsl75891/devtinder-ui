@@ -1,40 +1,43 @@
-import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {useMutation} from '@tanstack/react-query';
 import {useNavigate} from 'react-router';
 import environment from '../../config/environment';
 import useToaster from '../useToaster';
 
 /**
- * Custom hook to handle user login.
+ * Custom hook to handle user signup.
  * @returns {import('@tanstack/react-query').UseMutationResult<
  *    {message: string},
  *    Error,
- *    {email: string, password: string}>}
+ *    {
+ *      firstName: string,
+ *      lastName: string,
+ *      email: string,
+ *      password: string}>
+ *    }
  * >}
  */
-const useLogin = () => {
+const useSignup = () => {
   const toaster = useToaster();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({email, password}) => {
-      const res = await fetch(`${environment.baseApiUrl}/auth/login`, {
+    mutationFn: async payload => {
+      const res = await fetch(`${environment.baseApiUrl}/auth/signup`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({email, password}),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || 'Failed to login');
+        throw new Error(err.message || 'Failed to sign up');
       }
       return res.json();
     },
-    onSuccess: async () => {
-      navigate('/');
-      await queryClient.invalidateQueries();
+    onSuccess: ({message}) => {
+      toaster(message, 'success');
+      navigate('/login');
     },
     onError: error => {
       toaster(error.message, 'error');
@@ -42,4 +45,4 @@ const useLogin = () => {
   });
 };
 
-export default useLogin;
+export default useSignup;
