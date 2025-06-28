@@ -1,8 +1,8 @@
+import {useQuery} from '@tanstack/react-query';
 import environment from '../../config/environment';
-import {queryClient} from '../constants';
 
-const connectionsLoader = async () => {
-  return queryClient.ensureQueryData({
+const useConnections = () => {
+  return useQuery({
     queryFn: async () => {
       const response = await fetch(
         environment.baseApiUrl + '/users/connections',
@@ -14,4 +14,4 @@ const connectionsLoader = async () => {
   });
 };
 
-export default connectionsLoader;
+export default useConnections;

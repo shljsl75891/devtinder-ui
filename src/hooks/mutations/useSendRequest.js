@@ -1,9 +1,14 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
-import environment from '../config/environment';
-import useToaster from './useToaster';
+import environment from '../../config/environment';
+import useToaster from '../useToaster';
 
-/** @param {number} selectedPage
- * @returns {import('@tanstack/react-query').UseMutationResult<{userId: string, status: 0 | 1}>}
+/**
+ * @param {number} selectedPage
+ * @returns {import('@tanstack/react-query').UseMutationResult<
+ *    {message: string},
+ *    Error,
+ *    {userId: string, status: 0 | 1}>}
+ * >}
  */
 const useSendRequest = function (selectedPage) {
   const queryClient = useQueryClient();
@@ -18,7 +23,7 @@ const useSendRequest = function (selectedPage) {
         const err = await res.json();
         throw new Error(err.message || 'Failed to send request');
       }
-      return status;
+      return res.json();
     },
     onSuccess: status => {
       const actualStatus = status === 0 ? 'interested' : 'ignored';

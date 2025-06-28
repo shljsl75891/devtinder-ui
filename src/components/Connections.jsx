@@ -1,7 +1,13 @@
-import {useLoaderData} from 'react-router';
+import useConnections from '../hooks/queries/useConnections';
+import GenericFallback from '../utils/loaders/generic.fallback';
+import Gender from './ui/Gender';
 
 const Connections = () => {
-  const connections = useLoaderData();
+  const {data: connections, isPending} = useConnections();
+
+  if (isPending) {
+    return GenericFallback('Connections');
+  }
 
   return (
     <ul className="list bg-base-100 rounded-box shadow-md">
@@ -10,13 +16,16 @@ const Connections = () => {
       </li>
 
       {connections.map(
-        ({firstName, about, lastName, profileImageUrl, gender}) => (
-          <li className="list-row">
+        ({_id, firstName, about, lastName, profileImageUrl, gender}) => (
+          <li key={_id} className="list-row">
             <div>
               <img className="size-10 rounded-box" src={profileImageUrl} />
             </div>
             <div>
-              <div>{firstName + ' ' + lastName}</div>
+              <div className="flex items-center gap-2">
+                <div>{firstName + ' ' + lastName}</div>
+                <Gender gender={gender} />
+              </div>
               <div className="text-xs uppercase font-semibold opacity-60">
                 {about}
               </div>

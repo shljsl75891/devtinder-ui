@@ -1,33 +1,21 @@
-import {useQueryClient} from '@tanstack/react-query';
-import {Link, useNavigate} from 'react-router';
+import {Link} from 'react-router';
 import appLogo from '../assets/app-logo.png';
-import environment from '../config/environment';
-import useLoggedInUser from '../hooks/useLoggedInUser';
-import useToaster from '../hooks/useToaster';
+import useLogout from '../hooks/mutations/useLogout';
+import useLoggedInUser from '../hooks/queries/useLoggedInUser';
 import {isNullOrUndefined} from '../utils/constants';
 
 const Header = () => {
-  const navigate = useNavigate();
-  const toatser = useToaster();
   const user = useLoggedInUser();
-  const queryClient = useQueryClient();
-
-  const onLogOut = async () => {
-    await fetch(`${environment.baseApiUrl}/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    });
-    queryClient.invalidateQueries({queryKey: ['loggedInUser']});
-    navigate('/login');
-    toatser('Logged out successfully', 'success');
-  };
+  const {mutate: logout} = useLogout();
 
   return (
-    <div className="navbar bg-base-300 shadow-lg">
-      <div className="flex-none">
-        <img src={appLogo} className="h-8 w-12" />
-      </div>
-      <div className="flex-1 text-lg font-bold">DevTinder</div>
+    <div className="navbar bg-base-300 shadow-lg justify-between">
+      <Link to="/" className="flex items-center">
+        <div className="flex-none">
+          <img src={appLogo} className="h-8 w-12" />
+        </div>
+        <div className="flex-1 text-lg font-bold">DevTinder</div>
+      </Link>
       {!isNullOrUndefined(user?.profileImageUrl) && (
         <div className="flex gap-2">
           <div className="dropdown dropdown-end">
@@ -66,7 +54,7 @@ const Header = () => {
                 </Link>
               </li>
               <li>
-                <button onClick={onLogOut}>Logout</button>
+                <button onClick={() => logout()}>Logout</button>
               </li>
             </ul>
           </div>

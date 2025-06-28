@@ -1,42 +1,12 @@
-import {useQueryClient} from '@tanstack/react-query';
 import {useRef} from 'react';
-import {useNavigate} from 'react-router';
-import environment from '../config/environment.js';
-import useToaster from '../hooks/useToaster.js';
+import useLogin from '../hooks/mutations/useLogin.js';
 
 const Login = () => {
-  const navigate = useNavigate();
-  const toaster = useToaster();
   /** @type {import("react").Ref<HTMLInputElement>} */
   const emailRef = useRef(null);
   /** @type {import("react").Ref<HTMLInputElement>} */
   const passwordRef = useRef(null);
-  const queryClient = useQueryClient();
-
-  const onLogin = async () => {
-    try {
-      const res = await fetch(`${environment.baseApiUrl}/auth/login`, {
-        method: 'POST',
-        body: JSON.stringify({
-          email: emailRef.current.value,
-          password: passwordRef.current.value,
-        }),
-        headers: {'Content-Type': 'application/json'},
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        toaster(err.message, 'error');
-      } else {
-        const data = await res.json();
-        queryClient.removeQueries({queryKey: ['loggedInUser']});
-        toaster(data.message, 'success');
-        navigate('/');
-      }
-    } catch {
-      toaster('Unexpected error occured', 'error');
-    }
-  };
+  const {mutate: login, isPending} = useLogin();
 
   return (
     <div className="mt-40 w-1/4 h-1/3 card bg-base-200 mx-auto shadow-lg">
@@ -61,8 +31,20 @@ const Login = () => {
           />
         </fieldset>
         <div className="card-actions justify-end my-4">
-          <button className="btn btn-soft btn-primary w-full" onClick={onLogin}>
-            Login
+          <button
+            className={`btn btn-soft btn-primary w-full ${isPending ? 'btn-disabled' : ''}`}
+            onClick={() => {
+              login({
+                email: emailRef.current.value,
+                password: passwordRef.current.value,
+              });
+            }}
+          >
+            {isPending ? (
+              <span className="loading loading-spinner"></span>
+            ) : (
+              'Login'
+            )}
           </button>
         </div>
       </div>
