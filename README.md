@@ -16,4 +16,5 @@ If you are developing a production application, we recommend using TypeScript wi
 ```sh
 npm run build --silent
 aws s3 sync dist/ s3://devtinder-vite-react/ --delete
+aws cloudfront create-invalidation --distribution-id E2CE9H6JXNXJPQ--paths "/*"
 ```

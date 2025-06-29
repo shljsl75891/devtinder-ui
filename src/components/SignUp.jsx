@@ -33,7 +33,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="mt-40 w-1/4 h-1/3 card bg-base-200 mx-auto shadow-lg">
+    <div className="mt-40 h-1/3 card bg-base-200 mx-10 sm:mx-28 md:mx-auto md:max-w-2/5 shadow-lg">
       <h1 className="text-lg mx-auto mt-6 font-bold">
         Please create an account
       </h1>
