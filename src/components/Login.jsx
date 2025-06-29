@@ -31,8 +31,7 @@ const Login = () => {
    * >}
    */
   const onSubmit = data => {
-    resetField('password');
-    return login(data);
+    return login(data, {onError: () => resetField('password')});
   };
 
   return (
@@ -43,9 +42,9 @@ const Login = () => {
       <form className="card-body" onSubmit={handleSubmit(onSubmit)}>
         <fieldset className="fieldset">
           <input
-            type="email"
+            type="text"
             {...register('email', {required: true})}
-            className={`input validator w-full border-none ${errors.email ? 'input-error' : ''}`}
+            className={`input w-full border-none ${errors.email ? 'input-error' : ''}`}
             placeholder="Enter your email address"
           />
           {errors.email && (

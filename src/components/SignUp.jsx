@@ -29,8 +29,7 @@ const SignUp = () => {
    * >}
    */
   const onSubmit = data => {
-    resetField('password');
-    return signup(data);
+    return signup(data, {onError: () => resetField('password')});
   };
 
   return (

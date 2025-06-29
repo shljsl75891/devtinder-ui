@@ -25,7 +25,7 @@ const useSendRequest = function (selectedPage) {
       }
       return res.json();
     },
-    onSuccess: status => {
+    onSuccess: ({status}) => {
       const actualStatus = status === 0 ? 'interested' : 'ignored';
       toaster(`Request ${actualStatus} successfully`, 'success');
     },

@@ -2,10 +2,17 @@ import {QueryClient} from '@tanstack/react-query';
 
 export const FEED_LIMIT = 3;
 
+/**
+ * The number of milliseconds in 15 minutes.
+ * Used for setting the stale time for queries.
+ * @type {number}
+ */
+export const FIFTEEN_MINUTES = 15 * 60 * 1000;
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: Infinity,
+      staleTime: FIFTEEN_MINUTES,
     },
   },
 });

@@ -2,11 +2,11 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import environment from '../../config/environment';
 import useToaster from '../useToaster';
 
-const KEYS_TO_INVALIDATE = ['requests', 'connections'];
+const KEYS_TO_INVALIDATE = ['requests', 'connections', 'feedCount', 'users'];
 
 /**
  * @returns {import('@tanstack/react-query').UseMutationResult<
- *    {message: string},
+ *    number,
  *    Error,
  *    {id: string, status: 2 | 3}>}
  * >}
@@ -25,7 +25,7 @@ const useReviewRequest = () => {
         const err = await res.json();
         throw new Error(err.message || 'Failed to review request');
       }
-      return res.json();
+      return status;
     },
     onSuccess: async status => {
       const actualStatus = status === 2 ? 'accepted' : 'rejected';
@@ -39,11 +39,6 @@ const useReviewRequest = () => {
     onError: error => {
       toaster(error.message, 'error');
     },
-    onSettled: () =>
-      Promise.all([
-        queryClient.invalidateQueries({queryKey: ['requests']}),
-        queryClient.invalidateQueries({queryKey: ['feedCount']}),
-      ]),
   });
 };
 
