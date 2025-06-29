@@ -34,10 +34,10 @@ const useReviewRequest = () => {
           queryClient.invalidateQueries({queryKey: [key]}),
         ),
       );
-      toaster(`Request ${actualStatus} successfully`, 'success');
+      toaster.success(`Request ${actualStatus} successfully`);
     },
     onError: error => {
-      toaster(error.message, 'error');
+      toaster.error(error.message);
     },
   });
 };

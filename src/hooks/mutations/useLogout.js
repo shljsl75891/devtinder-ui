@@ -29,7 +29,7 @@ const useLogout = () => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({queryKey: ['loggedInUser']});
       navigate('/login');
-      toatser('Logged out successfully', 'success');
+      toatser.success('Logged out successfully');
     },
   });
 };

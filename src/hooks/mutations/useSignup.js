@@ -36,11 +36,11 @@ const useSignup = () => {
       return res.json();
     },
     onSuccess: ({message}) => {
-      toaster(message, 'success');
+      toaster.success(message);
       navigate('/login');
     },
     onError: error => {
-      toaster(error.message, 'error');
+      toaster.error(error.message);
     },
   });
 };

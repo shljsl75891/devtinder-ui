@@ -82,8 +82,23 @@ const ToasterProvider = ({children}) => {
     }, 1500);
   }, []);
 
+  /**
+   * @type {{
+   *    info: (message: string) => void,
+   *    success: (message: string) => void,
+   *    warning: (message: string) => void,
+   *    error: (message: string) => void
+   * }}
+   */
+  const toasterApi = {
+    info: message => showToaster(message, 'info'),
+    success: message => showToaster(message, 'success'),
+    warning: message => showToaster(message, 'warning'),
+    error: message => showToaster(message, 'error'),
+  };
+
   return (
-    <ToasterContext.Provider value={showToaster}>
+    <ToasterContext.Provider value={toasterApi}>
       {children}
       {toasters.length > 0 && (
         <div className="toast toast-top toast-center">

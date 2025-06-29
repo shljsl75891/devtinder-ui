@@ -40,10 +40,10 @@ const useUpdateProfile = () => {
       return res.json();
     },
     onSuccess: () => {
-      toaster('Profile updated successfully', 'success');
+      toaster.success('Profile updated successfully');
     },
     onError: error => {
-      toaster(error.message, 'error');
+      toaster.error(error.message);
     },
     onSettled: () => {
       queryClient.invalidateQueries({

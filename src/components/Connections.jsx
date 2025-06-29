@@ -34,7 +34,7 @@ const Connections = () => {
             </div>
             <button
               className="btn btn-secondary btn-sm ml-auto"
-              onClick={() => toaster('This feature is coming soon 😄', 'info')}
+              onClick={() => toaster.info('This feature is coming soon 😄')}
             >
               Chat
             </button>

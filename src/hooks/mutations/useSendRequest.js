@@ -27,10 +27,10 @@ const useSendRequest = function (selectedPage) {
     },
     onSuccess: ({status}) => {
       const actualStatus = status === 0 ? 'interested' : 'ignored';
-      toaster(`Request ${actualStatus} successfully`, 'success');
+      toaster.success(`Request ${actualStatus} successfully`);
     },
     onError: error => {
-      toaster(error.message, 'error');
+      toaster.error(error.message);
     },
     onSettled: () =>
       Promise.all([

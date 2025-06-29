@@ -37,7 +37,7 @@ const useLogin = () => {
       await queryClient.invalidateQueries();
     },
     onError: error => {
-      toaster(error.message, 'error');
+      toaster.error(error.message);
     },
   });
 };

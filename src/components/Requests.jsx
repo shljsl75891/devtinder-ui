@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import useReviewRequest from '../hooks/mutations/useReviewRequest';
 import useRequests from '../hooks/queries/useRequests';
 import GenericFallback from '../utils/loaders/generic.fallback';
@@ -5,7 +6,27 @@ import Gender from './ui/Gender';
 
 const Requests = () => {
   const {data: requests, isPending} = useRequests();
-  const {mutate: reviewRequest} = useReviewRequest();
+  const {mutate: reviewRequest, isPending: isReviewPending} =
+    useReviewRequest();
+  const [clickedLabel, setClickedLabel] = useState(null);
+
+  /**
+   * @param {string} id The ID of the request
+   * @param {2 | 3} status The status of the request (2 for accepted, 3 for rejected)
+   */
+  const handleReviewRequest = (id, status) => {
+    setClickedLabel(status === 2 ? 'Accept' : 'Reject');
+    reviewRequest({id, status}, {onSettled: () => setClickedLabel(null)});
+  };
+
+  /** @param {string} label The label for the button */
+  const getButtonLabel = label => {
+    return isReviewPending && label === clickedLabel ? (
+      <span className="loading loading-spinner"></span>
+    ) : (
+      label
+    );
+  };
 
   if (isPending) return GenericFallback('Requests');
 
@@ -34,16 +55,16 @@ const Requests = () => {
               </div>
             </div>
             <button
-              className="btn btn-secondary btn-sm ml-auto"
-              onClick={() => reviewRequest({id: _id, status: 3})}
+              className={`btn btn-secondary btn-sm ml-auto ${isReviewPending ? 'btn-disabled' : ''}`}
+              onClick={() => handleReviewRequest(_id, 3)}
             >
-              Reject
+              {getButtonLabel('Reject')}
             </button>
             <button
-              className="btn btn-primary btn-sm ml-auto"
-              onClick={() => reviewRequest({id: _id, status: 2})}
+              className={`btn btn-primary btn-sm ml-auto ${isReviewPending ? 'btn-disabled' : ''}`}
+              onClick={() => handleReviewRequest(_id, 2)}
             >
-              Accept
+              {getButtonLabel('Accept')}
             </button>
           </li>
         ),
