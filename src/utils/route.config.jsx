@@ -36,6 +36,10 @@ const router = createBrowserRouter([
         path: '/profile',
         Component: lazy(() => import('../components/Profile.jsx')),
       },
+      {
+        path: '/chat/:receiverId',
+        Component: lazy(() => import('../components/Chat.jsx')),
+      },
     ],
   },
 ]);

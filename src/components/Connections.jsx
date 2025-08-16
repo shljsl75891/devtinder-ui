@@ -1,11 +1,10 @@
+import {Link} from 'react-router';
 import useConnections from '../hooks/queries/useConnections';
-import useToaster from '../hooks/useToaster';
 import GenericFallback from '../utils/loaders/generic.fallback';
 import Gender from './ui/Gender';
 
 const Connections = () => {
   const {data: connections, isPending} = useConnections();
-  const toaster = useToaster();
 
   if (isPending) {
     return GenericFallback('Connections');
@@ -32,12 +31,9 @@ const Connections = () => {
                 {about}
               </div>
             </div>
-            <button
-              className="btn btn-secondary btn-sm ml-auto"
-              onClick={() => toaster.info('This feature is coming soon 😄')}
-            >
-              Chat
-            </button>
+            <Link to={`/chat/${_id}`}>
+              <button className="btn btn-secondary btn-sm ml-auto">Chat</button>
+            </Link>
           </li>
         ),
       )}
