@@ -24,3 +24,5 @@ export const queryClient = new QueryClient({
 export const isNullOrUndefined = value => {
   return value === null || value === undefined;
 };
+
+export const DATE_TIME_FORMAT = 'dd/MM/yy hh:mm aa';

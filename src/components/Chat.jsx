@@ -1,7 +1,9 @@
-import {useEffect, useState} from 'react';
+import {format} from 'date-fns';
+import {useEffect, useRef, useState} from 'react';
 import {useParams} from 'react-router';
+import useChatMessages from '../hooks/queries/useChatMessages';
 import useLoggedInUser from '../hooks/queries/useLoggedInUser';
-import {isNullOrUndefined} from '../utils/constants';
+import {DATE_TIME_FORMAT, isNullOrUndefined} from '../utils/constants';
 import socket from '../utils/socket';
 
 const Chat = () => {
@@ -10,17 +12,32 @@ const Chat = () => {
   const [receiver, setReceiver] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const {data: chatMessages} = useChatMessages(receiverId);
+  /** @type {React.RefObject<HTMLDivElement>} */
+  const chatContainerRef = useRef(null);
+  /** @type {React.RefObject<HTMLInputElement>} */
+  const inputRef = useRef(null);
 
   const handleSendMessage = () => {
-    setNewMessage('');
+    if (!newMessage.trim()) {
+      return;
+    }
     socket.emit('sendMessage', {
       senderId: user._id,
       receiverId,
       content: newMessage,
     });
+    setNewMessage('');
   };
 
-  const isSenderMessage = ({senderId}) => senderId === user._id;
+  const isSenderMessage = ({senderId}) => senderId._id === user._id;
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    if (chatMessages) {
+      setMessages(chatMessages);
+    }
+  }, [chatMessages]);
 
   useEffect(() => {
     if (user?._id) {
@@ -43,6 +60,13 @@ const Chat = () => {
     };
   }, [receiverId, user]);
 
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
     <div className="mx-auto mt-12 w-3/4 h-[80vh] border border-gray-500 rounded-md shadow-2xl relative">
       <div className="h-12 px-4 flex items-center gap-4 bg-gray-600">
@@ -59,7 +83,10 @@ const Chat = () => {
           <div className="text-white">Loading...</div>
         )}
       </div>
-      <div className="p-4">
+      <div
+        ref={chatContainerRef}
+        className="p-4 h-[calc(100%-8rem)] overflow-y-auto"
+      >
         {messages.length > 0 &&
           messages.map((message, index) => (
             <div
@@ -72,11 +99,7 @@ const Chat = () => {
                 <div className="w-10 rounded-full">
                   <img
                     alt="user-avatar"
-                    src={
-                      isSenderMessage(message)
-                        ? user.profileImageUrl
-                        : receiver.profileImageUrl
-                    }
+                    src={message.senderId.profileImageUrl}
                   />
                 </div>
               </div>
@@ -87,15 +110,22 @@ const Chat = () => {
               >
                 {message.content}
               </div>
+              <time className="my-2 text-xs opacity-50">
+                {format(new Date(message.createdAt), DATE_TIME_FORMAT)}
+              </time>
             </div>
           ))}
       </div>
 
-      <div className="w-full flex items-center justify-between absolute bottom-0">
+      <div className="w-full flex items-center border-t border-gray-600 justify-between absolute bottom-0">
         <input
           type="text"
+          ref={inputRef}
           value={newMessage}
           onChange={e => setNewMessage(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') handleSendMessage();
+          }}
           placeholder="Type a new message"
           className="input input-bordered w-full m-4 flex-5/6"
         />
