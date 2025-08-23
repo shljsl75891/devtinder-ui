@@ -88,9 +88,9 @@ const Chat = () => {
         className="p-4 h-[calc(100%-8rem)] overflow-y-auto"
       >
         {messages.length > 0 &&
-          messages.map((message, index) => (
+          messages.map(message => (
             <div
-              key={index}
+              key={message._id}
               className={`chat ${
                 isSenderMessage(message) ? 'chat-end' : 'chat-start'
               }`}
