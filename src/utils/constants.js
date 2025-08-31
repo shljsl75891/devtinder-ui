@@ -25,4 +25,13 @@ export const isNullOrUndefined = value => {
   return value === null || value === undefined;
 };
 
-export const DATE_TIME_FORMAT = 'dd/MM/yy hh:mm aa';
+/** @param {string} dateString */
+export const formatDateTime = dateString => {
+  return new Intl.DateTimeFormat('en-IN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(dateString));
+};

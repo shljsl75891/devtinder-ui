@@ -1,12 +1,12 @@
-import {format} from 'date-fns';
 import {useEffect, useRef, useState} from 'react';
 import {useParams} from 'react-router';
 import useChatMessages from '../hooks/queries/useChatMessages';
 import useLoggedInUser from '../hooks/queries/useLoggedInUser';
-import {DATE_TIME_FORMAT, isNullOrUndefined} from '../utils/constants';
-import socket from '../utils/socket';
+import {formatDateTime, isNullOrUndefined} from '../utils/constants';
 
 const Chat = () => {
+  /** @type {React.RefObject<WebSocket>} */
+  const socket = useRef(null);
   const {receiverId} = useParams();
   const user = useLoggedInUser();
   const [receiver, setReceiver] = useState(null);
@@ -22,15 +22,20 @@ const Chat = () => {
     if (!newMessage.trim()) {
       return;
     }
-    socket.emit('sendMessage', {
-      senderId: user._id,
-      receiverId,
-      content: newMessage,
-    });
+    socket.current.send(
+      JSON.stringify({
+        event: 'sendMessage',
+        message: {
+          senderId: user._id,
+          receiverId,
+          content: newMessage,
+        },
+      }),
+    );
     setNewMessage('');
   };
 
-  const isSenderMessage = ({senderId}) => senderId._id === user._id;
+  const isSenderMessage = ({senderId}) => senderId._id === user?._id;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -39,24 +44,61 @@ const Chat = () => {
     }
   }, [chatMessages]);
 
-  useEffect(() => {
-    if (user?._id) {
-      socket.connect();
-      socket.emit('join', {senderId: user._id, receiverId});
+  const onConnect = () => {
+    socket.current.send(
+      JSON.stringify({
+        event: 'joinRoom',
+        message: {
+          senderId: user._id,
+          receiverId,
+        },
+      }),
+    );
+    setNewMessage('');
+    console.info('websocket connection established');
+  };
 
-      socket.on('joinedRoom', ({receiver}) => {
+  const onDisconnect = () => {
+    console.warn('websocket connection disconnected');
+  };
+
+  /** @param {MessageEvent} event */
+  const onMessage = event => {
+    const data = JSON.parse(event.data);
+    switch (data.event) {
+      case 'roomJoined': {
+        const {receiver} = data;
         setReceiver(receiver);
-      });
+        break;
+      }
+      case 'messageDelivered': {
+        const {message} = data;
+        setMessages(prevMessages => [...prevMessages, message]);
+        break;
+      }
+      default:
+        console.log('Unhandled event: ', event);
+    }
+  };
 
-      socket.on('receiveMessage', newMessage => {
-        setMessages(prevMessages => [...prevMessages, newMessage]);
-      });
+  useEffect(() => {
+    /** @type {Array<number>} */
+    const connectedStates = [WebSocket.OPEN, WebSocket.CONNECTING];
+    if (user?._id && !connectedStates.includes(socket.current?.readyState)) {
+      socket.current = new WebSocket(import.meta.env.VITE_WEBSOCKET_SERVER_URL);
+
+      socket.current.addEventListener('open', onConnect);
+      socket.current.addEventListener('close', onDisconnect);
+      socket.current.addEventListener('message', onMessage);
     }
 
     return () => {
-      socket.off('joinedRoom');
-      socket.off('receiveMessage');
-      socket.disconnect();
+      if (socket.current?.readyState === WebSocket.OPEN) {
+        socket.current.removeEventListener('open', onConnect);
+        socket.current.removeEventListener('close', onDisconnect);
+        socket.current.removeEventListener('message', onMessage);
+        socket.current.close();
+      }
     };
   }, [receiverId, user]);
 
@@ -111,7 +153,7 @@ const Chat = () => {
                 {message.content}
               </div>
               <time className="my-2 text-xs opacity-50">
-                {format(new Date(message.createdAt), DATE_TIME_FORMAT)}
+                {formatDateTime(message.createdAt)}
               </time>
             </div>
           ))}
@@ -122,6 +164,7 @@ const Chat = () => {
           type="text"
           ref={inputRef}
           value={newMessage}
+          disabled={socket.current?.readyState !== WebSocket.OPEN}
           onChange={e => setNewMessage(e.target.value)}
           onKeyDown={e => {
             if (e.key === 'Enter') handleSendMessage();
@@ -132,6 +175,7 @@ const Chat = () => {
         <button
           className="btn btn-primary m-2 flex-1/6"
           onClick={handleSendMessage}
+          disabled={socket.current?.readyState !== WebSocket.OPEN}
         >
           Send
         </button>
